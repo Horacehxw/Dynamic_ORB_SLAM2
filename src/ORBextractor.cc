@@ -764,7 +764,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
 
 void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoints)
 {
-    allKeypoints.resize(nlevels);
+    allKeypoints.resize(nlevels); // outer loop: pyramid levels
 
     const float W = 30;
 
@@ -808,6 +808,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
                 vector<cv::KeyPoint> vKeysCell;
                 FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
                      vKeysCell,iniThFAST,true);
+
 
                 if(vKeysCell.empty())
                 {
