@@ -19,6 +19,7 @@ Thirdparty/g2o/config.h
 Thirdparty/g2o/lib/
 Vocabulary/ORBvoc.txt
 build/
+.idea/
 *~
 lib/
 Examples/MaskRCNN/mask_rcnn
