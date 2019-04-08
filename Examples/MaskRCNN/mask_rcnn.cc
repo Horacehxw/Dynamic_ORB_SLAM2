@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
     }
 
     // Give the configuration and weight files for the model
-    String textGraph = "./mask_rcnn_inception_v2_coco_2018_01_28/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
+    String textGraph = "./mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
     String modelWeights = "./mask_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb";
 
     // Load the network
@@ -222,21 +222,21 @@ int main(int argc, char *argv[])
     string str, outputFile;
     outputFile = "mask.png";
     VideoCapture cap;//根据摄像头端口id不同，修改下即可
-    //VideoWriter video;
+    VideoWriter video;
     Mat frame, blob;
-    frame = imread("human.png", CV_LOAD_IMAGE_COLOR);
-    //cap.open("./human.png");
+    //frame = imread("human.png", CV_LOAD_IMAGE_COLOR);
+    cap.open("./human.png");
 
 
     // Create a window
-    static const string kWinName = "Deep learning object detection in OpenCV";
+    static const string kWinName = "Mask R-CNN in OpenCV";
     namedWindow(kWinName, WINDOW_NORMAL);
 
     // Process frames.
     //while (waitKey(1) < 0)
     {
         // get frame from the video
-        //cap >> frame;
+        cap >> frame;
 
         // Stop the program if reached end of video
         if (frame.empty())
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
         // Write the frame with the detection boxes
         Mat detectedFrame;
         frame.convertTo(detectedFrame, CV_8U);
-
+        imwrite(outputFile, frame);
         imshow(kWinName, frame);
 
     }
