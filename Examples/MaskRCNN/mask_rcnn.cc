@@ -224,8 +224,9 @@ int main(int argc, char *argv[])
     VideoCapture cap;//根据摄像头端口id不同，修改下即可
     //VideoWriter video;
     Mat frame, blob;
-    //frame = imread("human.png", CV_LOAD_IMAGE_COLOR);
-    cap.open("./human.png");
+    frame = imread("human.png", CV_LOAD_IMAGE_COLOR);
+    //cap.open("./human.png");
+
 
     // Create a window
     static const string kWinName = "Deep learning object detection in OpenCV";
@@ -235,7 +236,7 @@ int main(int argc, char *argv[])
     //while (waitKey(1) < 0)
     {
         // get frame from the video
-        cap >> frame;
+        //cap >> frame;
 
         // Stop the program if reached end of video
         if (frame.empty())
