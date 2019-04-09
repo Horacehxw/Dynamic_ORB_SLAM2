@@ -111,15 +111,18 @@ void postprocess(Mat& frame, const vector<Mat>& outs)
     Mat outDetections = outs[0];
     Mat outMasks = outs[1];
 
+    cout << "out Detection size = " << outDetections.size << endl;
+    cout << "out Masks size = " << outMasks.size << endl;
     // Output size of masks is NxCxHxW where
     // N - number of detected boxes
     // C - number of classes (excluding background)
     // HxW - segmentation shape
     const int numDetections = outDetections.size[2];
     const int numClasses = outMasks.size[1];
-    cout << numClasses << endl;
 
     outDetections = outDetections.reshape(1, outDetections.total() / 7);
+    cout << "out Detection size = " << outDetections.size << endl;
+    cout << "out Masks size = " << outMasks.size << endl;
     for (int i = 0; i < numDetections; ++i)
     {
         float score = outDetections.at<float>(i, 2);
@@ -190,13 +193,13 @@ void drawBox(Mat& frame, int classId, float conf, Rect box, Mat& objectMask)
 int main(int argc, char *argv[])
 {
     // Load names of classes
-    string classesFile = "./mask_rcnn_inception_v2_coco_2018_01_28/mscoco_labels.names";
+    string classesFile = ".mscoco_labels.names";
     ifstream ifs(classesFile.c_str());
     string line;
     while (getline(ifs, line)) classes.push_back(line);
 
     // Load the colors
-    string colorsFile = "./mask_rcnn_inception_v2_coco_2018_01_28/colors.txt";
+    string colorsFile = ".colors.txt";
     ifstream colorFptr(colorsFile.c_str());
     while (getline(colorFptr, line))
     {
@@ -249,8 +252,8 @@ int main(int argc, char *argv[])
         // Create a 4D blob from a frame.
         blobFromImage(frame, blob, 1.0, Size(frame.cols, frame.rows), Scalar(), true, false);
         //blobFromImage(frame, blob);
-
-        //Sets the input to the network
+        cout << "blob size = " << blob.size << endl;
+        //Sets the input to the networkdl;
         net.setInput(blob);
 
         // Runs the forward pass to get output from the output layers
@@ -259,6 +262,9 @@ int main(int argc, char *argv[])
         outNames[1] = "detection_masks";
         vector<Mat> outs;
         net.forward(outs, outNames);
+        for (auto m: outs) {
+            cout << "m.size = " << m.size << endl;
+        }
 
         // Extract the bounding box and mask for each of the detected objects
         postprocess(frame, outs);
