@@ -98,12 +98,13 @@ vector<string> classes;
 vector<Scalar> colors;
 
 // Draw the predicted bounding box
-void drawBox(Mat& frame, int classId, float conf, Rect box, Mat& objectMask);
+void drawBox(Mat& frame, int classId, float conf, Rect box);
+
+// Draw the mask into frame
+void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask);
 
 // Postprocess the neural network's output for each frame
 void postprocess(Mat& frame, const vector<Mat>& outs);
-
-
 
 // For each frame, extract the bounding box and mask for each detected object
 void postprocess(Mat& frame, const vector<Mat>& outs)
@@ -145,14 +146,16 @@ void postprocess(Mat& frame, const vector<Mat>& outs)
             Mat objectMask(outMasks.size[2], outMasks.size[3], CV_32F, outMasks.ptr<float>(i, classId));
 
             // Draw bounding box, colorize and show the mask on the image
-            drawBox(frame, classId, score, box, objectMask);
+            drawBox(frame, classId, score, box);
 
+            // Draw mask
+            drawMask(frame, classId, box, objectMask);
         }
     }
 }
 
 // Draw the predicted bounding box, colorize and show the mask on the image
-void drawBox(Mat& frame, int classId, float conf, Rect box, Mat& objectMask)
+void drawBox(Mat& frame, int classId, float conf, Rect box)
 {
     //Draw a rectangle displaying the bounding box
     rectangle(frame, Point(box.x, box.y), Point(box.x + box.width, box.y + box.height), Scalar(255, 178, 50), 3);
@@ -171,35 +174,34 @@ void drawBox(Mat& frame, int classId, float conf, Rect box, Mat& objectMask)
     box.y = max(box.y, labelSize.height);
     rectangle(frame, Point(box.x, box.y - round(1.5*labelSize.height)), Point(box.x + round(1.5*labelSize.width), box.y + baseLine), Scalar(255, 255, 255), FILLED);
     putText(frame, label, Point(box.x, box.y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 0), 1);
+}
 
+void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask) {
     Scalar color = colors[classId%colors.size()];
 
     // Resize the mask, threshold, color and apply it on the image
     resize(objectMask, objectMask, Size(box.width, box.height));
+    // threshold mask into binary 255/0 mask
     Mat mask = (objectMask > maskThreshold);
-    Mat coloredRoi = (0.3 * color + 0.7 * frame(box));
-    coloredRoi.convertTo(coloredRoi, CV_8UC3);
-
-    // Draw the contours on the image
-    vector<Mat> contours;
-    Mat hierarchy;
-    mask.convertTo(mask, CV_8U);
-    findContours(mask, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
-    drawContours(coloredRoi, contours, -1, color, 5, LINE_8, hierarchy, 100);
-    coloredRoi.copyTo(frame(box), mask);
-
+    // make colorful mask
+    Mat colorRoi = Mat(Size(box.width, box.height), frame.type(), color);
+    Mat colorMask;
+    colorRoi.copyTo(colorMask, mask);
+    // color the segmentation and apply to image
+    addWeighted(frame(box), 0.3, colorMask, 0.7, 0.0, frame(box));
 }
+
 
 int main(int argc, char *argv[])
 {
     // Load names of classes
-    string classesFile = ".mscoco_labels.names";
+    string classesFile = "./mscoco_labels.names";
     ifstream ifs(classesFile.c_str());
     string line;
     while (getline(ifs, line)) classes.push_back(line);
 
     // Load the colors
-    string colorsFile = ".colors.txt";
+    string colorsFile = "./colors.txt";
     ifstream colorFptr(colorsFile.c_str());
     while (getline(colorFptr, line))
     {
@@ -273,7 +275,7 @@ int main(int argc, char *argv[])
         vector<double> layersTimes;
         double freq = getTickFrequency() / 1000;
         double t = net.getPerfProfile(layersTimes) / freq;
-        string label = format("Mask-RCNN on 2.5 GHz Intel Core i7 CPU, Inference time for a frame : %0.0f ms", t);
+        string label = format("Mask-RCNN on 3.6 GHz Intel Core i7 CPU, Inference time for a frame : %0.0f ms", t);
         putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 0));
 
         // Write the frame with the detection boxes
