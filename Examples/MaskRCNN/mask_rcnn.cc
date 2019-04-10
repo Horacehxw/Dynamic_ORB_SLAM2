@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <string.h>
+#include <unordered_set>
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -16,6 +17,28 @@
 using namespace std;
 using namespace cv;
 using namespace dnn;
+
+// Initialize the parameters
+float confThreshold = 0.5; // Confidence threshold
+float maskThreshold = 0.3; // Mask threshold
+
+vector<string> classes;
+vector<Scalar> colors;
+unordered_set<string> dynamicClasses;
+
+bool is_dynamic(int classId);
+
+// Draw the predicted bounding box
+void drawBox(Mat& frame, int classId, float conf, Rect box);
+
+// Draw the mask into frame
+void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask);
+
+// Postprocess the neural network's output for each frame
+void postprocess(Mat& frame, const vector<Mat>& outs);
+
+// draw orb features on two images
+void draw_feature();
 
 void draw_feature() {
     Mat img_1 = imread ( "human.png", CV_LOAD_IMAGE_COLOR );
@@ -89,22 +112,6 @@ void draw_feature() {
     imwrite("good_matches.png", img_goodmatch);
     waitKey(0);
 }
-
-// Initialize the parameters
-float confThreshold = 0.5; // Confidence threshold
-float maskThreshold = 0.3; // Mask threshold
-
-vector<string> classes;
-vector<Scalar> colors;
-
-// Draw the predicted bounding box
-void drawBox(Mat& frame, int classId, float conf, Rect box);
-
-// Draw the mask into frame
-void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask);
-
-// Postprocess the neural network's output for each frame
-void postprocess(Mat& frame, const vector<Mat>& outs);
 
 // For each frame, extract the bounding box and mask for each detected object
 void postprocess(Mat& frame, const vector<Mat>& outs)
@@ -185,20 +192,40 @@ void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask) {
     Mat mask = (objectMask > maskThreshold);
     // make colorful mask
     Mat colorRoi = Mat(Size(box.width, box.height), frame.type(), color);
-    Mat colorMask;
+    Mat colorMask = Mat::zeros(Size(box.width, box.height), frame.type());
     colorRoi.copyTo(colorMask, mask);
     // color the segmentation and apply to image
     addWeighted(frame(box), 0.3, colorMask, 0.7, 0.0, frame(box));
 }
 
+bool is_dynamic(int classId) {
 
-int main(int argc, char *argv[])
-{
+    return false;
+}
+
+void load_data_info() {
     // Load names of classes
     string classesFile = "./mscoco_labels.names";
     ifstream ifs(classesFile.c_str());
     string line;
     while (getline(ifs, line)) classes.push_back(line);
+
+    // load names of dynamic classes
+    string dynamicClassFile = "./mscoco_labels.names";
+    ifs.open(dynamicClassFile.c_str());
+    while (getline(ifs, line)) dynamicClasses.insert(line);
+
+    for (auto s: dynamicClasses) {
+        bool flag = false;
+        for (auto s_ : classes) {
+            if (s == s_) {
+                flag = true;
+            }
+        }
+        if (!flag) {
+            cout << s <<" mismatch" << endl;
+        }
+    }
 
     // Load the colors
     string colorsFile = "./colors.txt";
@@ -213,7 +240,11 @@ int main(int argc, char *argv[])
         Scalar color = Scalar(r, g, b, 255.0);
         colors.push_back(Scalar(r, g, b, 255.0));
     }
+}
 
+int main(int argc, char *argv[])
+{
+    load_data_info();
     // Give the configuration and weight files for the model
     String textGraph = "./mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
     String modelWeights = "./mask_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb";
