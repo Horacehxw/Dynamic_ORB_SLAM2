@@ -45,8 +45,5 @@ target_link_libraries(segmentation ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/DynamicExtractor)
 include_directories(DynamicExtractor)
-add_executable(test
-        DynamicExtractor/test.cc
-        DynamicExtractor/DynamicExtractor.cc
-        )
+add_executable(test DynamicExtractor/test.cc)
 target_link_libraries(test ${PROJECT_NAME})

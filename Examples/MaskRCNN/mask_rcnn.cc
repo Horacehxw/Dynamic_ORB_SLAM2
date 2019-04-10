@@ -131,6 +131,7 @@ void postprocess(Mat &frame, const vector<Mat> &outs, Mat &dynamic_mask)
     const int numClasses = outMasks.size[1];
 
     outDetections = outDetections.reshape(1, outDetections.total() / 7);
+    cout << "out Detection after resize = " << outDetections.size << endl;
 
     dynamic_mask = Mat::zeros(frame.size(), CV_8U);
     Mat mat_ones = Mat(frame.size(), CV_8U, Scalar(255));
@@ -224,17 +225,18 @@ void load_data_info() {
     ifstream ifs2(dynamicClassFile.c_str());
     while (getline(ifs2, line)) dynamicClasses.insert(line);
 
-    for (auto s: dynamicClasses) {
-        bool flag = false;
-        for (auto s_ : classes) {
-            if (s == s_) {
-                flag = true;
-            }
-        }
-        if (!flag) {
-            cout << s <<" mismatch" << endl;
-        }
-    }
+//    // test if every dynamic class refer to existing class names
+//    for (auto s: dynamicClasses) {
+//        bool flag = false;
+//        for (auto s_ : classes) {
+//            if (s == s_) {
+//                flag = true;
+//            }
+//        }
+//        if (!flag) {
+//            cout << s <<" mismatch" << endl;
+//        }
+//    }
 
     // Load the colors
     string colorsFile = "./colors.txt";
@@ -293,7 +295,7 @@ int main(int argc, char *argv[])
     blobFromImage(frame, blob, 1.0, Size(frame.cols, frame.rows), Scalar(), true, false);
     //blobFromImage(frame, blob);
     cout << "blob size = " << blob.size << endl;
-    //Sets the input to the networkdl;
+    //Sets the input to the network
     net.setInput(blob);
 
     // Runs the forward pass to get output from the output layers
