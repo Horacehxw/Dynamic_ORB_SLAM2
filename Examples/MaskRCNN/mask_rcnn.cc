@@ -28,14 +28,16 @@ unordered_set<string> dynamicClasses;
 
 bool is_dynamic(int classId);
 
+void load_data_info();
+
 // Draw the predicted bounding box
 void drawBox(Mat& frame, int classId, float conf, Rect box);
 
 // Draw the mask into frame
-void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask);
+void drawMask(Mat &frame, int classId, Rect box, Mat &mask);
 
 // Postprocess the neural network's output for each frame
-void postprocess(Mat& frame, const vector<Mat>& outs);
+void postprocess(Mat &frame, const vector<Mat> &outs, Mat &dynamic_mask);
 
 // draw orb features on two images
 void draw_feature();
@@ -114,7 +116,7 @@ void draw_feature() {
 }
 
 // For each frame, extract the bounding box and mask for each detected object
-void postprocess(Mat& frame, const vector<Mat>& outs)
+void postprocess(Mat &frame, const vector<Mat> &outs, Mat &dynamic_mask)
 {
     Mat outDetections = outs[0];
     Mat outMasks = outs[1];
@@ -129,15 +131,18 @@ void postprocess(Mat& frame, const vector<Mat>& outs)
     const int numClasses = outMasks.size[1];
 
     outDetections = outDetections.reshape(1, outDetections.total() / 7);
-    cout << "out Detection size = " << outDetections.size << endl;
-    cout << "out Masks size = " << outMasks.size << endl;
+
+    dynamic_mask = Mat::zeros(frame.size(), CV_8U);
+    Mat mat_ones = Mat(frame.size(), CV_8U, Scalar(255));
     for (int i = 0; i < numDetections; ++i)
     {
         float score = outDetections.at<float>(i, 2);
         if (score > confThreshold)
         {
-            // Extract the bounding box
+            // Extract class id
             int classId = static_cast<int>(outDetections.at<float>(i, 1));
+
+            // Extract bounding box
             int left = static_cast<int>(frame.cols * outDetections.at<float>(i, 3));
             int top = static_cast<int>(frame.rows * outDetections.at<float>(i, 4));
             int right = static_cast<int>(frame.cols * outDetections.at<float>(i, 5));
@@ -151,12 +156,21 @@ void postprocess(Mat& frame, const vector<Mat>& outs)
 
             // Extract the mask for the object
             Mat objectMask(outMasks.size[2], outMasks.size[3], CV_32F, outMasks.ptr<float>(i, classId));
+            // Resize the mask, threshold, color and apply it on the image
+            resize(objectMask, objectMask, Size(box.width, box.height));
+            // threshold mask into binary 255/0 mask
+            Mat mask = (objectMask > maskThreshold);
+            mask.convertTo(mask, CV_8U);
 
             // Draw bounding box, colorize and show the mask on the image
             drawBox(frame, classId, score, box);
 
             // Draw mask
-            drawMask(frame, classId, box, objectMask);
+            drawMask(frame, classId, box, mask);
+
+            if (is_dynamic(classId)) {
+                mat_ones(box).copyTo(dynamic_mask(box), mask);
+            }
         }
     }
 }
@@ -183,24 +197,19 @@ void drawBox(Mat& frame, int classId, float conf, Rect box)
     putText(frame, label, Point(box.x, box.y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 0), 1);
 }
 
-void drawMask(Mat& frame, int classId, Rect box, Mat& objectMask) {
+void drawMask(Mat &frame, int classId, Rect box, Mat &mask) {
     Scalar color = colors[classId%colors.size()];
 
-    // Resize the mask, threshold, color and apply it on the image
-    resize(objectMask, objectMask, Size(box.width, box.height));
-    // threshold mask into binary 255/0 mask
-    Mat mask = (objectMask > maskThreshold);
     // make colorful mask
     Mat colorRoi = Mat(Size(box.width, box.height), frame.type(), color);
     Mat colorMask = Mat::zeros(Size(box.width, box.height), frame.type());
     colorRoi.copyTo(colorMask, mask);
     // color the segmentation and apply to image
-    addWeighted(frame(box), 0.3, colorMask, 0.7, 0.0, frame(box));
+    addWeighted(frame(box), 0.5, colorMask, 0.5, 0.0, frame(box));
 }
 
 bool is_dynamic(int classId) {
-
-    return false;
+    return dynamicClasses.count(classes[classId]);
 }
 
 void load_data_info() {
@@ -212,8 +221,8 @@ void load_data_info() {
 
     // load names of dynamic classes
     string dynamicClassFile = "./mscoco_labels.names";
-    ifs.open(dynamicClassFile.c_str());
-    while (getline(ifs, line)) dynamicClasses.insert(line);
+    ifstream ifs2(dynamicClassFile.c_str());
+    while (getline(ifs2, line)) dynamicClasses.insert(line);
 
     for (auto s: dynamicClasses) {
         bool flag = false;
@@ -268,54 +277,52 @@ int main(int argc, char *argv[])
     static const string kWinName = "Mask R-CNN in OpenCV";
     namedWindow(kWinName, WINDOW_NORMAL);
 
-    // Process frames.
-    //while (waitKey(1) < 0)
+
+    // get frame from the video
+    cap >> frame;
+
+    // Stop the program if reached end of video
+    if (frame.empty())
     {
-        // get frame from the video
-        cap >> frame;
-
-        // Stop the program if reached end of video
-        if (frame.empty())
-        {
-            cout << "Done processing !!!" << endl;
-            cout << "Output file is stored as " << outputFile << endl;
-            waitKey(3000);
-            //break;
-        }
-        // Create a 4D blob from a frame.
-        blobFromImage(frame, blob, 1.0, Size(frame.cols, frame.rows), Scalar(), true, false);
-        //blobFromImage(frame, blob);
-        cout << "blob size = " << blob.size << endl;
-        //Sets the input to the networkdl;
-        net.setInput(blob);
-
-        // Runs the forward pass to get output from the output layers
-        std::vector<String> outNames(2);
-        outNames[0] = "detection_out_final";
-        outNames[1] = "detection_masks";
-        vector<Mat> outs;
-        net.forward(outs, outNames);
-        for (auto m: outs) {
-            cout << "m.size = " << m.size << endl;
-        }
-
-        // Extract the bounding box and mask for each of the detected objects
-        postprocess(frame, outs);
-
-        // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-        vector<double> layersTimes;
-        double freq = getTickFrequency() / 1000;
-        double t = net.getPerfProfile(layersTimes) / freq;
-        string label = format("Mask-RCNN on 3.6 GHz Intel Core i7 CPU, Inference time for a frame : %0.0f ms", t);
-        putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 0));
-
-        // Write the frame with the detection boxes
-        Mat detectedFrame;
-        frame.convertTo(detectedFrame, CV_8U);
-        imwrite(outputFile, frame);
-        imshow(kWinName, frame);
-
+        cout << "Done processing !!!" << endl;
+        cout << "Output file is stored as " << outputFile << endl;
+        waitKey(3000);
+        //break;
     }
+    // Create a 4D blob from a frame.
+    blobFromImage(frame, blob, 1.0, Size(frame.cols, frame.rows), Scalar(), true, false);
+    //blobFromImage(frame, blob);
+    cout << "blob size = " << blob.size << endl;
+    //Sets the input to the networkdl;
+    net.setInput(blob);
+
+    // Runs the forward pass to get output from the output layers
+    std::vector<String> outNames(2);
+    outNames[0] = "detection_out_final";
+    outNames[1] = "detection_masks";
+    vector<Mat> outs;
+    net.forward(outs, outNames);
+    for (auto m: outs) {
+        cout << "m.size = " << m.size << endl;
+    }
+
+    // Extract the bounding box and mask for each of the detected objects
+    Mat dynamic_mask;
+    postprocess(frame, outs, dynamic_mask);
+
+    // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
+    vector<double> layersTimes;
+    double freq = getTickFrequency() / 1000;
+    double t = net.getPerfProfile(layersTimes) / freq;
+    string label = format("Mask-RCNN on 3.6 GHz Intel Core i7 CPU, Inference time for a frame : %0.0f ms", t);
+    putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 0));
+
+    // Write the frame with the detection boxes
+    imwrite("dynamic_mask.png", dynamic_mask);
+    imwrite(outputFile, frame);
+    imshow(kWinName, frame);
+
+
     cap.release();
     return 0;
 }
