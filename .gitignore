@@ -27,3 +27,4 @@ Examples/MaskRCNN/mask_rcnn_inception_v2_coco_2018_01_28/
 cmake-build-debug/
 *.caffemodel
 Examples/dnn/segmentation
+Examples/DynamicExtractor/test
