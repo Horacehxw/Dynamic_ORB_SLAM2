@@ -20,29 +20,31 @@
 
 
 
+namespace ORB_SLAM2 {
+    class DynamicExtractor {
 
-class DynamicExtractor {
+    public:
+        // need model location to load the model
+        // only supports mask-rcnn for now
+        DynamicExtractor(const std::string &strModelPath,
+                         float confThreshold = 0.5, float maskThreshold = 0.3);
 
-public:
-    // need model location to load the model
-    // only supports mask-rcnn for now
-    DynamicExtractor(std::string textGraph, std::string modelWeights, std::string classesFile, std::string dynamicClassFile,
-            float confThreshold = 0.5, float maskThreshold = 0.3);
+        // compute dynamic mask for given frame
+        void extractMask(const cv::Mat &frame, cv::Mat &dynamic_mask);
 
-    // compute dynamic mask for given frame
-    void extractMask(cv::Mat &frame, cv::Mat &dynamic_mask);
-private:
-    // return non-zero if the corresponding class is dynamic
-    bool is_dynamic(int classId) {
-        return dynamicClasses.count(classes[classId]);
-    }
-    float confThreshold; // Confidence threshold
-    float maskThreshold; // Mask threshold
+    private:
+        // return non-zero if the corresponding class is dynamic
+        bool is_dynamic(int classId) {
+            return dynamicClasses.count(classes[classId]);
+        }
 
-    std::vector<std::string> classes; // classId --> className
-    std::unordered_set<std::string> dynamicClasses; // name of dynamic classes
-    cv::dnn::Net net; // mask-rcnn model
-};
+        float confThreshold; // Confidence threshold
+        float maskThreshold; // Mask threshold
 
+        std::vector<std::string> classes; // classId --> className
+        std::unordered_set<std::string> dynamicClasses; // name of dynamic classes
+        cv::dnn::Net net; // mask-rcnn model
+    };
 
+}
 #endif //DYNAMIC_ORB_SLAM2_DYNAMICEXTRACTOR_H

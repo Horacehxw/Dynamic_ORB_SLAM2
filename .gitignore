@@ -28,3 +28,6 @@ cmake-build-debug/
 *.caffemodel
 Examples/dnn/segmentation
 Examples/DynamicExtractor/test
+cmake-build-release/
+build/
+**build**/

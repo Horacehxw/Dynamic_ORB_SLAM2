@@ -3,20 +3,24 @@
 //
 
 #include <DynamicExtractor.h>
+#include <chrono>
 
 using namespace cv;
 
 int main() {
-    DynamicExtractor ex(
-            "../../ModelsCNN/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt",
-            "../../ModelsCNN/frozen_inference_graph.pb",
-            "../../ModelsCNN/mscoco_labels.names",
-            "../../ModelsCNN/dynamic.txt"
+
+    ORB_SLAM2::DynamicExtractor ex(
+            "ModelsCNN/"
             );
 
-    Mat frame = imread("./human.png", CV_LOAD_IMAGE_COLOR);
+    Mat frame = imread("Examples/DynamicExtractor/human.png", CV_LOAD_IMAGE_COLOR);
     Mat mask;
+
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     ex.extractMask(frame, mask);
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+    std::cout << ttrack << std::endl;
 
     imwrite("dynamic_mask.png", mask);
 

@@ -246,10 +246,17 @@ void Frame::AssignFeaturesToGrid()
 
 void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
-    if(flag==0)
-        (*mpORBextractorLeft)(im,cv::Mat(),mvKeys,mDescriptors);
-    else
-        (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
+    cv::Mat mask = cv::Mat(im.size(), CV_8U, cv::Scalar(255));
+    if(flag==0) {
+        if (mpORBextractorLeft->remove_dynamic)
+            mpORBextractorLeft->extractDynamicMask(im, mask);
+        (*mpORBextractorLeft)(im, mask, mvKeys, mDescriptors);
+    }
+    else {
+        if (mpORBextractorRight->remove_dynamic)
+            mpORBextractorRight->extractDynamicMask(im, mask);
+        (*mpORBextractorRight)(im, mask, mvKeysRight, mDescriptorsRight);
+    }
 }
 
 void Frame::SetPose(cv::Mat Tcw)

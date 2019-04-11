@@ -6,50 +6,50 @@ airplane
 bus
 train
 truck
-hair drier
-toothbrush
+boat
+traffic light
+fire hydrant
+street sign
+stop sign
+parking meter
+bench
+bird
+cat
+dog
+horse
 sheep
 cow
 elephant
 bear
 zebra
 giraffe
-boat
-bird
-cat
-keyboard
-phone
+hat
 backpack
 umbrella
+shoe
+eye glasses
 handbag
 tie
 suitcase
-dog
-horse
 frisbee
-book
-clock
 skis
 snowboard
 sports ball
 kite
-bat
-glove
+baseball bat
+baseball glove
 skateboard
 surfboard
-mouse
-remote
+tennis racket
 bottle
-glass
+plate
+wine glass
 cup
 fork
 knife
 spoon
 bowl
 banana
-tennis racket
-scissors
-teddy bear
 apple
 sandwich
 orange
@@ -60,4 +60,31 @@ pizza
 donut
 cake
 chair
+couch
+potted plant
+bed
+mirror
+dining table
+window
+desk
+toilet
+door
+tv
 laptop
+mouse
+remote
+keyboard
+cell phone
+microwave
+oven
+toaster
+sink
+refrigerator
+blender
+book
+clock
+vase
+scissors
+teddy bear
+hair drier
+toothbrush

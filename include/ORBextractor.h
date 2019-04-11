@@ -24,6 +24,7 @@
 #include <vector>
 #include <list>
 #include <opencv/cv.h>
+#include "DynamicExtractor.h"
 
 
 namespace ORB_SLAM2
@@ -49,13 +50,13 @@ public:
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
     ORBextractor(int nfeatures, float scaleFactor, int nlevels,
-                 int iniThFAST, int minThFAST);
+                 int iniThFAST, int minThFAST, const std::string &strModelPath);
 
     ~ORBextractor(){}
 
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
-    // Mask is ignored in the current implementation.
+    // Mask should be calculated by Dynamic Extractor
     void operator()( cv::InputArray image, cv::InputArray mask,
       std::vector<cv::KeyPoint>& keypoints,
       cv::OutputArray descriptors);
@@ -65,6 +66,8 @@ public:
 
     float inline GetScaleFactor(){
         return scaleFactor;}
+
+    void extractDynamicMask(const cv::Mat &im, cv::Mat &mask);
 
     std::vector<float> inline GetScaleFactors(){
         return mvScaleFactor;
@@ -83,15 +86,17 @@ public:
     }
 
     std::vector<cv::Mat> mvImagePyramid;
+    std::vector<cv::Mat> mvMaskPyramid;
+    bool remove_dynamic;
 
 protected:
 
-    void ComputePyramid(cv::Mat image);
+    void ComputePyramid(cv::Mat image, cv::Mat mask);
     void ComputeKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);    
     std::vector<cv::KeyPoint> DistributeOctTree(const std::vector<cv::KeyPoint>& vToDistributeKeys, const int &minX,
                                            const int &maxX, const int &minY, const int &maxY, const int &nFeatures, const int &level);
 
-    void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
+    //void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
     std::vector<cv::Point> pattern;
 
     int nfeatures;
@@ -108,6 +113,9 @@ protected:
     std::vector<float> mvInvScaleFactor;    
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+
+    DynamicExtractor *mask_extractor;
+
 };
 
 } //namespace ORB_SLAM

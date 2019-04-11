@@ -13,6 +13,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/dnn.hpp>
+#include <chrono>
 
 using namespace std;
 using namespace cv;
@@ -45,9 +46,11 @@ void draw_feature();
 void draw_feature() {
     Mat img_1 = imread ( "human.png", CV_LOAD_IMAGE_COLOR );
     Mat img_2 = imread ( "human2.png", CV_LOAD_IMAGE_COLOR );
+    Mat mask = imread("dynamic_mask.png", CV_8U);
 
     //-- 初始化
     std::vector<KeyPoint> keypoints_1, keypoints_2;
+
     Mat descriptors_1, descriptors_2;
     Ptr<FeatureDetector> detector = ORB::create();
     Ptr<DescriptorExtractor> descriptor = ORB::create();
@@ -56,8 +59,15 @@ void draw_feature() {
     Ptr<DescriptorMatcher> matcher  = DescriptorMatcher::create ( "BruteForce-Hamming" );
 
     //-- 第一步:检测 Oriented FAST 角点位置
-    detector->detect ( img_1,keypoints_1 );
-    detector->detect ( img_2,keypoints_2 );
+    detector->detect ( img_1,keypoints_1, mask);
+    detector->detect ( img_2,keypoints_2, mask);
+//    detector->detect ( img_1,keypoints_1);
+//    detector->detect ( img_2,keypoints_2);
+
+    cout << keypoints_1.size() << endl;
+
+    cout << keypoints_1[0].pt.x << " " << keypoints_1[0].pt.y << endl;
+    cout << mask.at<uchar>(keypoints_1[0].pt) << endl;
 
     //-- 第二步:根据角点位置计算 BRIEF 描述子
     descriptor->compute ( img_1, keypoints_1, descriptors_1 );
@@ -133,8 +143,8 @@ void postprocess(Mat &frame, const vector<Mat> &outs, Mat &dynamic_mask)
     outDetections = outDetections.reshape(1, outDetections.total() / 7);
     cout << "out Detection after resize = " << outDetections.size << endl;
 
-    dynamic_mask = Mat::zeros(frame.size(), CV_8U);
-    Mat mat_ones = Mat(frame.size(), CV_8U, Scalar(255));
+    dynamic_mask = Mat(frame.size(), CV_8U, Scalar(255));
+    Mat mat_zeros = Mat::zeros(frame.size(), CV_8U);
     for (int i = 0; i < numDetections; ++i)
     {
         float score = outDetections.at<float>(i, 2);
@@ -170,7 +180,7 @@ void postprocess(Mat &frame, const vector<Mat> &outs, Mat &dynamic_mask)
             drawMask(frame, classId, box, mask);
 
             if (is_dynamic(classId)) {
-                mat_ones(box).copyTo(dynamic_mask(box), mask);
+                mat_zeros(box).copyTo(dynamic_mask(box), mask);
             }
         }
     }
@@ -255,6 +265,9 @@ void load_data_info() {
 
 int main(int argc, char *argv[])
 {
+
+    draw_feature();
+
     load_data_info();
     // Give the configuration and weight files for the model
     String textGraph = "./mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
@@ -296,14 +309,23 @@ int main(int argc, char *argv[])
     //blobFromImage(frame, blob);
     cout << "blob size = " << blob.size << endl;
     //Sets the input to the network
+
     net.setInput(blob);
+
+
 
     // Runs the forward pass to get output from the output layers
     std::vector<String> outNames(2);
     outNames[0] = "detection_out_final";
     outNames[1] = "detection_masks";
     vector<Mat> outs;
+
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     net.forward(outs, outNames);
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+    std::cout << "network forwarding time " << ttrack << std::endl;
+
     for (auto m: outs) {
         cout << "m.size = " << m.size << endl;
     }
