@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     if (argc > 4) {
         model_path = string(argv[4]);
     }
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true, argv[4]);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true, model_path);
     //ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true, "");
 
 
