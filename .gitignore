@@ -31,3 +31,4 @@ Examples/DynamicExtractor/test
 cmake-build-release/
 build/
 **build**/
+CameraTrajectory.txt

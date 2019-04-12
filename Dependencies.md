@@ -1,4 +1,9 @@
 ##List of Known Dependencies
+### Dynamic-ORB-SLAM2
+
+* *DynamicExtractor.h, DynamicExtractor.c*
+This is a modified version of segmentation.cpp from OpenCV library. The original code is BSD licensed.
+
 ###ORB-SLAM2 version 1.0
 
 In this document we list all the pieces of code included  by ORB-SLAM2 and linked libraries which are not property of the authors of ORB-SLAM2.

@@ -38,11 +38,6 @@ add_executable(mask_rcnn MaskRCNN/mask_rcnn.cc)
 target_link_libraries(mask_rcnn ${PROJECT_NAME})
 
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/dnn)
-include_directories(dnn)
-add_executable(segmentation dnn/segmentation.cpp)
-target_link_libraries(segmentation ${PROJECT_NAME})
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/DynamicExtractor)
 include_directories(DynamicExtractor)
 add_executable(test DynamicExtractor/test.cc)
