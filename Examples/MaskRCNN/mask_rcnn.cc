@@ -76,7 +76,8 @@ void draw_feature() {
     Mat outimg1;
     Mat greyimg1;
     cvtColor(img_1, greyimg1, CV_BGR2GRAY);
-    drawKeypoints( greyimg1, keypoints_1, outimg1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
+    drawKeypoints( greyimg1, keypoints_1, outimg1, Scalar(0,255,0), DrawMatchesFlags::DEFAULT);
+    //drawKeypoints( outimg1, keypoints_2, outimg1, Scalar(0,0,255), DrawMatchesFlags::DEFAULT);
     imshow("ORB特征点",outimg1);
     imwrite("orb_features.png", outimg1);
 
@@ -266,7 +267,7 @@ void load_data_info() {
 int main(int argc, char *argv[])
 {
 
-    draw_feature();
+    //draw_feature();
 
     load_data_info();
     // Give the configuration and weight files for the model
