@@ -36,9 +36,9 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageLeft,
 
 int main(int argc, char **argv)
 {
-    if(argc != 4)
+    if(argc != 5 && argc != 6)
     {
-        cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./stereo_kitti path_to_vocabulary path_to_settings path_to_sequence target_name path_to_cnn_model" << endl;
         return 1;
     }
 
@@ -50,12 +50,20 @@ int main(int argc, char **argv)
 
     const int nImages = vstrImageLeft.size();
 
+    // path to load model
+    string model_path;
+    if (argc > 5) {
+        model_path = string(argv[5]);
+    }
+
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::STEREO,true, model_path);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
+
+
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
@@ -122,7 +130,7 @@ int main(int argc, char **argv)
     cout << "mean tracking time: " << totaltime/nImages << endl;
 
     // Save camera trajectory
-    SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
+    SLAM.SaveTrajectoryKITTI(string(argv[4]));
 
     return 0;
 }
