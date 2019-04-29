@@ -32,3 +32,4 @@ cmake-build-release/
 build/
 **build**/
 CameraTrajectory.txt
+*.pyc
