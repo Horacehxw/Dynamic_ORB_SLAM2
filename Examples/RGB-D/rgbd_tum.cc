@@ -35,9 +35,9 @@ void LoadImages(const string &strAssociationFilename, vector<string> &vstrImageF
                 vector<string> &vstrImageFilenamesD, vector<double> &vTimestamps);
 
 int main(int argc, char **argv) {
-    if (argc != 6 && argc != 7) {
+    if (argc != 6 && argc != 7 && argc != 8) {
         cerr << endl
-             << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association target_name path_to_cnn_model"
+             << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association target_name path_to_cnn_model mask_sync"
              << endl;
         return 1;
     }
@@ -61,15 +61,19 @@ int main(int argc, char **argv) {
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     string model_path;
+    int skip = 1;
     if (argc > 6) {
         model_path = string(argv[6]);
+    }
+    if (argc > 7) {
+        skip = stoi(string(argv[7]));
     }
 
     // test 5 runs!
 
     {
         //cout << "run number " << runs << endl;
-        ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::RGBD, true, model_path);
+        ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::RGBD, true, model_path, skip);
 
 
         // Vector for tracking time statistics

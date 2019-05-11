@@ -51,6 +51,7 @@ void draw_feature(Mat& img_1, Mat& mask) {
     imwrite("Examples/DynamicExtractor/outimg_3.png", outimg);
 
     drawKeypoints( greyimg1, keypoints_4, outimg, Scalar(0,0,255), DrawMatchesFlags::DEFAULT);
+    drawKeypoints( outimg, keypoints_1, outimg, Scalar(0,255,0), DrawMatchesFlags::DEFAULT);
     imwrite("Examples/DynamicExtractor/outimg_false.png", outimg);
 }
 
@@ -59,7 +60,7 @@ int main() {
             "ModelsCNN/"
             );
 
-    Mat frame = imread("Examples/DynamicExtractor/human.png", CV_LOAD_IMAGE_COLOR);
+    Mat frame = imread("Examples/DynamicExtractor/back.png", CV_LOAD_IMAGE_COLOR);
     Mat mask;
 
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();

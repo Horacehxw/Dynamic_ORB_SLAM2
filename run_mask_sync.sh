@@ -1,0 +1,9 @@
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip2.txt ModelsCNN/ 2
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip3.txt ModelsCNN/ 3
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip4.txt ModelsCNN/ 4
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip5.txt ModelsCNN/ 5
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip7.txt ModelsCNN/ 7
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip10.txt ModelsCNN/ 10
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip15.txt ModelsCNN/ 15
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz ~/Data/TUM/rgbd_dataset_freiburg3_walking_xyz/associations.txt results/w_xyz_Dyna_skip20.txt ModelsCNN/ 20
+

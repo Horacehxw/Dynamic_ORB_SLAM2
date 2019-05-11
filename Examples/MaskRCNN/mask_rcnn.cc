@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
     VideoWriter video;
     Mat frame, blob;
     //frame = imread("human.png", CV_LOAD_IMAGE_COLOR);
-    cap.open("./human.png");
+    cap.open("./lqh.jpg");
 
 
     // Create a window

@@ -9,9 +9,11 @@ using namespace cv;
 using namespace dnn;
 
 namespace ORB_SLAM2 {
-    DynamicExtractor::DynamicExtractor(const string &strModelPath,
-                                       float confThreshold, float maskThreshold) : confThreshold(confThreshold),
+    DynamicExtractor::DynamicExtractor(const string &strModelPath, int maxUsage,
+                                       float confThreshold, float maskThreshold) : maxUsage(maxUsage),
+                                                                                   confThreshold(confThreshold),
                                                                                    maskThreshold(maskThreshold) {
+        maskUsage = 0;
         string textGraph = strModelPath + "mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
         string modelWeights = strModelPath +  "frozen_inference_graph.pb";
         string classesFile = strModelPath + "mscoco_labels.names";
@@ -34,9 +36,8 @@ namespace ORB_SLAM2 {
 
     }
 
-    void DynamicExtractor::extractMask(const Mat &frame, Mat &dynamic_mask) {
+    Mat DynamicExtractor::extractMask(const Mat &frame) {
         Mat blob;
-
         // Create 4D blob from a frame as input
         blobFromImage(frame, blob, 1.0, Size(frame.cols, frame.rows), Scalar(), true, false);
         net.setInput(blob);
@@ -63,7 +64,7 @@ namespace ORB_SLAM2 {
 
         // aggregate binary mask of dynamic objects into dynamic_mask
         // dynamic part should be zero
-        dynamic_mask = Mat(frame.size(), CV_8U, Scalar(255));
+        Mat dynamic_mask = Mat(frame.size(), CV_8U, Scalar(255));
         Mat mat_zeros = Mat::zeros(frame.size(), CV_8U);
         for (int i = 0; i < numDetections; ++i) {
             float score = outDetections.at<float>(i, 2);
@@ -97,5 +98,17 @@ namespace ORB_SLAM2 {
                 }
             }
         }
+        return dynamic_mask;
+    }
+
+    void DynamicExtractor::extractMask(const Mat &frame, Mat &dynamic_mask) {
+        // if maskUsage <= masUsage, resuse prevMask
+        if (prevMask.empty() || maskUsage >= maxUsage) {
+            prevMask = extractMask(frame);
+            maskUsage = 0;
+        }
+
+        dynamic_mask = prevMask.clone();
+        maskUsage++;
     }
 }
