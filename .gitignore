@@ -33,3 +33,4 @@ build/
 **build**/
 CameraTrajectory.txt
 *.pyc
+.vscode/

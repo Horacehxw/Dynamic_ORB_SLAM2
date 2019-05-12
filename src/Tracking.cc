@@ -132,7 +132,9 @@ Tracking::Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer,
     cout << "- Scale Factor: " << fScaleFactor << endl;
     cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
     cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
-    cout << "- Remove Dynamic Features: " << mpORBextractorLeft->remove_dynamic << endl;
+    cout << "- Remove Dynamic Features: " << string(mpORBextractorLeft->remove_dynamic?"True":"False") << endl;
+    if (mpORBextractorLeft->remove_dynamic)
+        cout << "- Mask synchronization skip step: " << skip << endl;
 
     if(sensor==System::STEREO || sensor==System::RGBD)
     {

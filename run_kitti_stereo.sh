@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # 00-02
 ./Examples/Stereo/stereo_kitti Vocabulary/ORBvoc.txt Examples/Stereo/KITTI00-02.yaml /home/horacehxw/Data/KITTI/data_odometry_gray/dataset/sequences/00 results/KITTI_stero/00_Dyna.txt ModelsCNN/
 ./Examples/Stereo/stereo_kitti Vocabulary/ORBvoc.txt Examples/Stereo/KITTI00-02.yaml /home/horacehxw/Data/KITTI/data_odometry_gray/dataset/sequences/01 results/KITTI_stero/01_Dyna.txt ModelsCNN/

@@ -31,6 +31,8 @@
 
 using namespace std;
 
+string LOG_FILE = "results/time_log.txt";
+
 void LoadImages(const string &strAssociationFilename, vector<string> &vstrImageFilenamesRGB,
                 vector<string> &vstrImageFilenamesD, vector<double> &vTimestamps);
 
@@ -142,6 +144,10 @@ int main(int argc, char **argv) {
         cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
         cout << "mean tracking time: " << totaltime / nImages << endl;
 
+        fstream ofs;
+        ofs.open(LOG_FILE, ios::app);
+        ofs<< skip << ":" << totaltime / nImages << endl;
+        ofs.close();
         // Save camera trajectory
         SLAM.SaveTrajectoryTUM( argv[5]);
         //SLAM.SaveKeyFrameTrajectoryTUM("results/w_half_KeyFrameTrajectory.txt");

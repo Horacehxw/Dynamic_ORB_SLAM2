@@ -42,3 +42,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/DynamicExtract
 include_directories(DynamicExtractor)
 add_executable(test DynamicExtractor/test.cc)
 target_link_libraries(test ${PROJECT_NAME})
+
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/OpticalFlow)
+add_executable(optflow OpticalFlow/fback.cc)
+target_link_libraries(optflow ${PROJECT_NAME})
