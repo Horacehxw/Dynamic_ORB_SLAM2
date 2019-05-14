@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
         skip = stoi(string(argv[7]));
     }
     if (argc > 8) {
-        useOpticalFlow = argv[8];
+        useOpticalFlow = stoi(string(argv[8]));
     }
     // test 5 runs!
 
