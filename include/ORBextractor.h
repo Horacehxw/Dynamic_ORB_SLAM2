@@ -50,7 +50,7 @@ public:
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
     ORBextractor(int nfeatures, float scaleFactor, int nlevels,
-                 int iniThFAST, int minThFAST, const std::string &strModelPath, int skip);
+                 int iniThFAST, int minThFAST, const std::string &strModelPath, int skip, bool useOpticalFlow);
 
     ~ORBextractor(){}
 

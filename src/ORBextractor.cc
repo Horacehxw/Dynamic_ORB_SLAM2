@@ -410,7 +410,7 @@ static int bit_pattern_31_[256*4] =
 };
 
 ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,
-         int _iniThFAST, int _minThFAST, const std::string &strModelPath, int skip):
+         int _iniThFAST, int _minThFAST, const std::string &strModelPath, int skip, bool useOpticalFlow):
     nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
     iniThFAST(_iniThFAST), minThFAST(_minThFAST)
 {
@@ -418,7 +418,7 @@ ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,
         remove_dynamic = false;
     } else {
         remove_dynamic = true;
-        mask_extractor = new DynamicExtractor(strModelPath, skip);
+        mask_extractor = new DynamicExtractor(strModelPath, skip, useOpticalFlow);
     }
 
 

@@ -31,15 +31,13 @@
 
 using namespace std;
 
-string LOG_FILE = "results/time_log.txt";
-
 void LoadImages(const string &strAssociationFilename, vector<string> &vstrImageFilenamesRGB,
                 vector<string> &vstrImageFilenamesD, vector<double> &vTimestamps);
 
 int main(int argc, char **argv) {
-    if (argc != 6 && argc != 7 && argc != 8) {
+    if (argc != 6 && argc != 7 && argc != 8 && argc != 9 && argc!=10) {
         cerr << endl
-             << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association target_name path_to_cnn_model mask_sync"
+             << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association target_name [path_to_cnn_model mask_sync useOpticalFlow]"
              << endl;
         return 1;
     }
@@ -64,18 +62,21 @@ int main(int argc, char **argv) {
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     string model_path;
     int skip = 1;
+    bool useOpticalFlow = false;
     if (argc > 6) {
         model_path = string(argv[6]);
     }
     if (argc > 7) {
         skip = stoi(string(argv[7]));
     }
-
+    if (argc > 8) {
+        useOpticalFlow = argv[8];
+    }
     // test 5 runs!
 
     {
         //cout << "run number " << runs << endl;
-        ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::RGBD, true, model_path, skip);
+        ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::RGBD, true, model_path, skip, useOpticalFlow);
 
 
         // Vector for tracking time statistics
@@ -145,7 +146,11 @@ int main(int argc, char **argv) {
         cout << "mean tracking time: " << totaltime / nImages << endl;
 
         fstream ofs;
-        ofs.open(LOG_FILE, ios::app);
+        string log_file = "results/time_log.txt";
+        if (argc > 9) {
+            log_file = string(argv[9]);
+        }
+        ofs.open(log_file, ios::app);
         ofs<< skip << ":" << totaltime / nImages << endl;
         ofs.close();
         // Save camera trajectory

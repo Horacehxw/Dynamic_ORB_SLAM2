@@ -9,10 +9,11 @@ using namespace cv;
 using namespace dnn;
 
 namespace ORB_SLAM2 {
-    DynamicExtractor::DynamicExtractor(const string &strModelPath, int maxUsage,
+    DynamicExtractor::DynamicExtractor(const string &strModelPath, int maxUsage, bool useOpticalFlow,
                                        float confThreshold, float maskThreshold) : maxUsage(maxUsage),
                                                                                    confThreshold(confThreshold),
-                                                                                   maskThreshold(maskThreshold) {
+                                                                                   maskThreshold(maskThreshold),
+                                                                                   useOpticalFlow(useOpticalFlow){
         maskUsage = 0;
         string textGraph = strModelPath + "mask_rcnn_inception_v2_coco_2018_01_28.pbtxt";
         string modelWeights = strModelPath +  "frozen_inference_graph.pb";
@@ -104,11 +105,17 @@ namespace ORB_SLAM2 {
     void DynamicExtractor::extractMask(const Mat &frame, Mat &dynamic_mask) {
         // if maskUsage <= masUsage, resuse prevMask
         if (prevMask.empty() || maskUsage >= maxUsage) {
+            prevFrame = frame.clone();
             prevMask = extractMask(frame);
+            dynamic_mask = prevMask.clone();
             maskUsage = 0;
+        } else if (useOpticalFlow) {
+            cv::Mat flow;
+            calcOpticalFlowFarneback(frame, prevFrame, flow, 0.5, 3, 20, 3, 5, 1.2, 0);
+            propagate_mask(prevMask, dynamic_mask, flow);
+        } else {
+            dynamic_mask = prevMask.clone();
         }
-
-        dynamic_mask = prevMask.clone();
         maskUsage++;
     }
 }
