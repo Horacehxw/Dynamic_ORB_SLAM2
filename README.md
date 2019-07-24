@@ -1,6 +1,8 @@
 # Dynamic-ORB-SLAM2
 **Author:** [Horace He](https://github.com/Horacehxw)
 
+To cite this repo, please use [Pair-Navi: Peer-to-Peer Indoor Navigation with Mobile Visual SLAM](doi://10.1109/INFOCOM.2019.8737640)
+
 Dynamic-ORB-SLAM2 is a robust visual SLAM library that can **identify and deal with dynamic objects** for monocular, stereo and RGB-D configurations. More specificly, the Mask R-CNN is applied to extract dynamic objects from input frame. Then a mask is applied to feature extractor to remove dynamic keypoints in each level of image pyramid.
 
 The system shows superior result in  in camera trajectory estimation of TUM walking_xyz dataset compared to origin ORB-SLAM2. The absolute trajectory area goes down from 0.64 to 0.0016.
