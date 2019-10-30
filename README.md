@@ -40,6 +40,8 @@ Required by g2o (see below). Download and install instructions can be found at: 
 ## DBoW2 and g2o (Included in Thirdparty folder)
 We use modified versions of the [DBoW2](https://github.com/dorian3d/DBoW2) library to perform place recognition and [g2o](https://github.com/RainerKuemmerle/g2o) library to perform non-linear optimizations. Both modified libraries (which are BSD) are included in the *Thirdparty* folder.
 
+## git-lfs 
+We use [git-lfs](https://git-lfs.github.com/) to track big fils in ModelsCNN/ directory.
 
 # 3. Building Dynamic-ORB-SLAM2 library and examples
 
